@@ -20,6 +20,8 @@ def upload_file(
 
     # S3 uses posix-like paths
     s3_key = s3_key.as_posix()
+    # cast to string to get local filesystem's path
+    local_path = str(local_path)
 
     s3_client = boto3.client("s3")
     if public_read:
