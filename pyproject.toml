@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "django-s3-csv-2-sfdc"
+version = "0.1.0"
+description = "A set of helper functions for CSV to Salesforce procedures, with reporting in AWS S3, based in a Django project"
+authors = ["Alex Drozd <drozdster@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "^3.1.6"
+simple-salesforce = "^1.10.1"
+boto3 = "^1.17.3"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
