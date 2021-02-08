@@ -28,7 +28,7 @@ class S3ReportManager:
         self.file_name = Path(file_name)
 
         # Timestamps
-        self.start_time = datetime.now().isoformat()
+        self.start_time = datetime.datetime.now().isoformat()
         # used for memo. is None until it's used.
         self.archive_time = None
 
@@ -67,7 +67,7 @@ class S3ReportManager:
         in SFDC report object share values
         """
         if not self.archive_time:
-            self.archive_time = datetime.now()
+            self.archive_time = datetime.datetime.now()
         return self.archive_time.isoformat()
 
     def _archive_named(self, suffix: str):
