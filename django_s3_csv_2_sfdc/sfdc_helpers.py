@@ -35,7 +35,7 @@ def parse_bulk_upsert_results(
 
 def extract_errors_from_results(results: list) -> list:
     """
-    More general version of the above
+    More general version of parse_bulk_upsert_results
     """
     errors = list()
     for result in results:
