@@ -1,5 +1,5 @@
 import csv
-import tempfile
+from django_s3_csv_2_sfdc.utils import get_temp
 
 from pathlib import Path
 from typing import List, Tuple
@@ -11,7 +11,9 @@ def create_error_report(
     """
     Takes in the errors from the output of parse_bulk_upsert_results and writes a report
 
-    # TODO: allow a custom headers
+    # TODO: allow custom headers
+
+    TEMP must be defined in your django settings
     """
     csv_rows = []
     headers = [
@@ -32,7 +34,7 @@ def create_error_report(
             csv_rows.append([error[header] for header in headers])
 
     if not report_path:
-        report_path = Path(tempfile.gettempdir()) / "error_report.csv"
+        report_path = get_temp() / "error_report.csv"
 
     with open(report_path, mode="w", newline="") as file:
         writer = csv.writer(

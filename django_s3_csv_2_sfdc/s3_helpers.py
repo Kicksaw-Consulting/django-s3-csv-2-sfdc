@@ -1,7 +1,7 @@
 import boto3
 import os
 
-from django.conf import settings
+from django_s3_csv_2_sfdc.utils import get_temp
 
 from pathlib import Path
 
@@ -66,7 +66,7 @@ def s3_to_temp(s3_object_key, bucket_name) -> Path:
 
     TEMP must be defined in your django settings
     """
-    tmp = Path(settings.TEMP)
+    tmp = get_temp()
 
     s3_client = boto3.client("s3")
     download_folder = tmp / os.path.dirname(s3_object_key)
