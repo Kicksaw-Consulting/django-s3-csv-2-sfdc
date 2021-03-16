@@ -35,8 +35,8 @@ def upload_file(
 def respond_to_s3_event(event, callback, *args, **kwargs):
     """
     Use like this:
-        def process_s3_event(s3_object_key):
-            print(s3_object_key)
+        def process_s3_event(s3_object_key, bucket_name):
+            print(s3_object_key, bucket_name)
 
         def handler(event, context):
             respond_to_s3_event(event, process_s3_event)
@@ -44,6 +44,8 @@ def respond_to_s3_event(event, callback, *args, **kwargs):
     records = event["Records"]
     for record in records:
         s3_data = record["s3"]
+        bucket = s3_data["bucket"]
+        bucket_name = bucket["name"]
         s3_object = s3_data["object"]
         s3_object_key = s3_object["key"]
-        callback(s3_object_key, *args, **kwargs)
+        callback(s3_object_key, bucket_name, *args, **kwargs)
