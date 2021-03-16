@@ -1,4 +1,7 @@
 import boto3
+import os
+
+from django.conf import settings
 
 from pathlib import Path
 
@@ -49,3 +52,27 @@ def respond_to_s3_event(event, callback, *args, **kwargs):
         s3_object = s3_data["object"]
         s3_object_key = s3_object["key"]
         callback(s3_object_key, bucket_name, *args, **kwargs)
+
+
+def s3_to_temp(s3_object_key, bucket_name) -> Path:
+    """
+    Downloads a file from s3, dropping it in the temp directory
+    following the pathing convention from the s3_object_key
+
+        e.g., s3_object_key = archive/a_file.txt
+        will drop it in
+
+        %TEMP%/archive/a_file.txt
+
+    TEMP must be defined in your django settings
+    """
+    tmp = Path(settings.TEMP)
+
+    s3_client = boto3.client("s3")
+    download_folder = tmp / os.path.dirname(s3_object_key)
+    download_path = tmp / s3_object_key
+    # spawn the nested folders without the os complaining
+    Path(download_folder).mkdir(parents=True, exist_ok=True)
+    s3_client.download_file(bucket_name, s3_object_key, str(download_path))
+
+    return download_path
