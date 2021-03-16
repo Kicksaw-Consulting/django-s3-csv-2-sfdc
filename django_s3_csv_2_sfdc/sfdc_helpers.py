@@ -31,3 +31,15 @@ def parse_bulk_upsert_results(
                 }
             )
     return successes, errors
+
+
+def extract_errors_from_results(results: list) -> list:
+    """
+    More general version of the above
+    """
+    errors = list()
+    for result in results:
+        success = result.get("success")
+        if not success:
+            errors += result.get("errors")
+    return errors

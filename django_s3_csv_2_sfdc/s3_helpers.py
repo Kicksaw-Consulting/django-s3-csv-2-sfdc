@@ -30,3 +30,20 @@ def upload_file(
         )
     else:
         s3_client.upload_file(local_path, bucket, s3_key)
+
+
+def respond_to_s3_event(event, callback, *args, **kwargs):
+    """
+    Use like this:
+        def process_s3_event(s3_object_key):
+            print(s3_object_key)
+
+        def handler(event, context):
+            respond_to_s3_event(event, process_s3_event)
+    """
+    records = event["Records"]
+    for record in records:
+        s3_data = record["s3"]
+        s3_object = s3_data["object"]
+        s3_object_key = s3_object["key"]
+        callback(s3_object_key, *args, **kwargs)
