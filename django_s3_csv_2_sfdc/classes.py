@@ -131,6 +131,7 @@ class Orchestrator:
 
     def create_execution_object(self):
         assert self.sf_client, f"sf_client isn't set"
+        assert self.execution_object_name, f"execution_object_name isn't set"
         getattr(self.sf_client, self.execution_object_name).create(
             self.execution_sfdc_hash
         )
