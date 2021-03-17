@@ -87,7 +87,7 @@ class Orchestrator:
             salesforce_object: The name of the object you upserted to
             upsert_key: The upsert key you used
         """
-        self.batches.append((results, data, salesforce_object, upsert_key))
+        self.batches.append((results, list(data), salesforce_object, upsert_key))
 
     def automagically_finish_up(self):
         self.generate_error_report()
