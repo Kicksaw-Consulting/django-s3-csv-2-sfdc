@@ -3,7 +3,7 @@ from pathlib import Path
 
 from tempfile import gettempdir
 
-from django_s3_csv_2_sfdc.classes import DjangoS3Csv2Sfdc
+from django_s3_csv_2_sfdc.classes import Orchestrator
 from django_s3_csv_2_sfdc.utils import get_iso
 
 import django_s3_csv_2_sfdc.classes as classes_module
@@ -15,7 +15,7 @@ class MockSfClient:
         pass
 
 
-def test_the_main_class(monkeypatch):
+def test_orchestrator(monkeypatch):
     monkeypatch.setattr(classes_module, "s3_to_temp", lambda *args: "tests/sample.csv")
     monkeypatch.setattr(classes_module, "SfClient", MockSfClient)
     monkeypatch.setattr(
@@ -24,7 +24,7 @@ def test_the_main_class(monkeypatch):
 
     s3_key = "junk.csv"
     bucket = "a bucket"
-    manager = DjangoS3Csv2Sfdc(s3_key, bucket)
+    manager = Orchestrator(s3_key, bucket)
 
     data = []
     results = []

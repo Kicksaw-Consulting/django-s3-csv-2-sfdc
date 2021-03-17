@@ -25,7 +25,7 @@ class SfClient(Salesforce):
         super().__init__(**config)
 
 
-class DjangoS3Csv2Sfdc:
+class Orchestrator:
     """
     This class can be used to orchestrate the following flow
 
