@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from django.conf import settings
@@ -11,7 +10,6 @@ from django_s3_csv_2_sfdc.s3_helpers import (
     timestamp_s3_key,
 )
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
-from django_s3_csv_2_sfdc.utils import get_iso
 
 
 class SfClient(Salesforce):

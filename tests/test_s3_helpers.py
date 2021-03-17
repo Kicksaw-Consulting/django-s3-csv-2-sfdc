@@ -1,5 +1,4 @@
 import os
-from os import path
 import pytest
 
 from django_s3_csv_2_sfdc.utils import get_iso
