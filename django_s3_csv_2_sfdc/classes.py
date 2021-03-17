@@ -65,12 +65,15 @@ class Orchestrator:
         self.execution_object_name = execution_object_name
 
         self.downloaded_file = s3_to_temp(s3_object_key, bucket_name)
-        self.sf_client = sf_client if sf_client else SfClient()
+        self.sf_client = sf_client
 
         self.error_report_path: str = None
         self.error_count: int = None
 
         self.batches = list()
+
+    def set_sf_client(self, sf_client: SfClient):
+        self.sf_client = sf_client
 
     def log_batch(
         self, results: list, data: list, salesforce_object: str, upsert_key: str
@@ -127,6 +130,7 @@ class Orchestrator:
         return Path(error_folder) / error_report_s3_key
 
     def create_execution_object(self):
+        assert self.sf_client, f"sf_client isn't set"
         getattr(self.sf_client, self.execution_object_name).create(
             self.execution_sfdc_hash
         )
