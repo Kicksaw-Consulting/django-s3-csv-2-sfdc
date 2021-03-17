@@ -1,9 +1,9 @@
 import boto3
 import os
 
-from django_s3_csv_2_sfdc.utils import get_temp
-
 from pathlib import Path
+
+from django_s3_csv_2_sfdc.utils import get_temp, get_iso
 
 
 def upload_file(
@@ -76,3 +76,18 @@ def s3_to_temp(s3_object_key, bucket_name) -> Path:
     s3_client.download_file(bucket_name, s3_object_key, str(download_path))
 
     return download_path
+
+
+def timestamp_s3_key(s3_key: str, keep_folder: bool = False) -> str:
+    dir_name = os.path.dirname(s3_key)
+    file_name = os.path.basename(s3_key)
+    name_and_extension = os.path.splitext(file_name)
+    assert len(name_and_extension) == 2
+    name = name_and_extension[0]
+    extension = name_and_extension[1]
+    iso = get_iso()
+
+    timestamped_s3_key = f"{name}-{iso}{extension}"
+    if keep_folder:
+        return os.path.join(dir_name, timestamped_s3_key)
+    return timestamped_s3_key

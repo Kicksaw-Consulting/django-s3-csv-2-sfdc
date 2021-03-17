@@ -5,7 +5,11 @@ from django.conf import settings
 from simple_salesforce import Salesforce
 
 from django_s3_csv_2_sfdc.csv_helpers import create_error_report
-from django_s3_csv_2_sfdc.s3_helpers import s3_to_temp, upload_file
+from django_s3_csv_2_sfdc.s3_helpers import (
+    s3_to_temp,
+    upload_file,
+    timestamp_s3_key,
+)
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
 from django_s3_csv_2_sfdc.utils import get_iso
 
@@ -114,21 +118,15 @@ class DjangoS3Csv2Sfdc:
     @property
     def archive_file_s3_key(self):
         s3_object_key = self.s3_object_key
-        file_name = os.path.basename(s3_object_key)
-        name_and_extension = os.path.splitext(file_name)
-        assert len(name_and_extension) == 2
-        name = name_and_extension[0]
-        extension = name_and_extension[1]
-        iso = get_iso()
         archive_folder = self.archive_folder if self.archive_folder else "archive"
-        archive_file_name = f"{name}-{iso}{extension}"
-        return Path(archive_folder) / archive_file_name
+        archive_s3_key = timestamp_s3_key(s3_object_key)
+        return Path(archive_folder) / archive_s3_key
 
     @property
     def error_file_s3_key(self):
-        iso = get_iso()
         error_folder = self.error_folder if self.error_folder else "errors"
-        return Path(error_folder) / f"error-report-{iso}.csv"
+        error_report_s3_key = timestamp_s3_key("error-report.csv")
+        return Path(error_folder) / error_report_s3_key
 
     def create_execution_object(self):
         getattr(self.sf_client, self.execution_object_name).create(
