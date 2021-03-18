@@ -16,7 +16,9 @@ class MockSfClient:
 
 
 def test_orchestrator(monkeypatch):
-    monkeypatch.setattr(classes_module, "s3_to_temp", lambda *args: "tests/sample.csv")
+    monkeypatch.setattr(
+        classes_module, "download_file", lambda *args: "tests/sample.csv"
+    )
     monkeypatch.setattr(classes_module, "SfClient", MockSfClient)
     monkeypatch.setattr(
         csv_helpers_module, "get_temp", lambda *args: Path(gettempdir())

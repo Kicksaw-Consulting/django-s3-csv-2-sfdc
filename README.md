@@ -7,7 +7,7 @@ The use case is fairly specific, but the helpers should be modular so they can b
 
 ```python
 from django_s3_csv_2_sfdc.csv_helpers import create_error_report
-from django_s3_csv_2_sfdc.s3_helpers import s3_to_temp, respond_to_s3_event, upload_file
+from django_s3_csv_2_sfdc.s3_helpers import download_file, respond_to_s3_event, upload_file
 from django_s3_csv_2_sfdc.sfdc_helpers import extract_errors_from_results
 
 
@@ -17,7 +17,7 @@ def handler(event, context):
 
 
 def download_and_process(s3_object_key, bucket_name):
-    download_path = s3_to_temp(s3_object_key, bucket_name)
+    download_path = download_file(s3_object_key, bucket_name)
 
     # This function contains your own biz logic; does not come from this library
     results = serialize_and_push_to_sfdc(download_path)

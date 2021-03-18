@@ -5,9 +5,10 @@ from simple_salesforce import Salesforce
 
 from django_s3_csv_2_sfdc.csv_helpers import create_error_report
 from django_s3_csv_2_sfdc.s3_helpers import (
-    s3_to_temp,
+    download_file,
     upload_file,
     timestamp_s3_key,
+    move_file,
 )
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
 
@@ -64,7 +65,7 @@ class Orchestrator:
 
         self.execution_object_name = execution_object_name
 
-        self.downloaded_file = s3_to_temp(s3_object_key, bucket_name)
+        self.downloaded_file = download_file(s3_object_key, bucket_name)
         self.sf_client = sf_client
 
         self.error_report_path: str = None
@@ -105,12 +106,12 @@ class Orchestrator:
         self.error_count = error_count
 
     def report(self):
-        self.upload_archive_file()
+        self.archive_file()
         self.upload_error_report()
         self.create_execution_object()
 
-    def upload_archive_file(self):
-        upload_file(self.downloaded_file, self.bucket_name, self.archive_file_s3_key)
+    def archive_file(self):
+        move_file(self.s3_object_key, self.archive_file_s3_key, self.bucket_name)
 
     def upload_error_report(self):
         assert self.error_report_path, f"error_report_path is not set"

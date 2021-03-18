@@ -7,7 +7,7 @@ from django_s3_csv_2_sfdc.utils import get_temp, get_iso
 
 
 def upload_file(
-    local_path: Path, bucket, s3_key: Path = None, public_read: bool = False
+    local_path: Path, bucket: str, s3_key: Path = None, public_read: bool = False
 ):
     """Upload a file to an S3 bucket
 
@@ -35,26 +35,17 @@ def upload_file(
         s3_client.upload_file(local_path, bucket, s3_key)
 
 
-def respond_to_s3_event(event, callback, *args, **kwargs):
+def move_file(old_key: str, new_key: str, bucket: str):
     """
-    Use like this:
-        def process_s3_event(s3_object_key, bucket_name):
-            print(s3_object_key, bucket_name)
-
-        def handler(event, context):
-            respond_to_s3_event(event, process_s3_event)
+    Move a file within an S3 bucket by copying to a different path and deleting the original
     """
-    records = event["Records"]
-    for record in records:
-        s3_data = record["s3"]
-        bucket = s3_data["bucket"]
-        bucket_name = bucket["name"]
-        s3_object = s3_data["object"]
-        s3_object_key = s3_object["key"]
-        callback(s3_object_key, bucket_name, *args, **kwargs)
+    s3_client = boto3.client("s3")
+    copy_source = {"Bucket": bucket, "Key": old_key}
+    s3_client.copy(copy_source, bucket, new_key)
+    s3_client.delete_object(Bucket=bucket, Key=old_key)
 
 
-def s3_to_temp(s3_object_key, bucket_name) -> Path:
+def download_file(s3_object_key: str, bucket_name: str) -> Path:
     """
     Downloads a file from s3, dropping it in the temp directory
     following the pathing convention from the s3_object_key
@@ -91,3 +82,22 @@ def timestamp_s3_key(s3_key: str, keep_folder: bool = False) -> str:
     if keep_folder:
         return os.path.join(dir_name, timestamped_s3_key)
     return timestamped_s3_key
+
+
+def respond_to_s3_event(event, callback, *args, **kwargs):
+    """
+    Use like this:
+        def process_s3_event(s3_object_key, bucket_name):
+            print(s3_object_key, bucket_name)
+
+        def handler(event, context):
+            respond_to_s3_event(event, process_s3_event)
+    """
+    records = event["Records"]
+    for record in records:
+        s3_data = record["s3"]
+        bucket = s3_data["bucket"]
+        bucket_name = bucket["name"]
+        s3_object = s3_data["object"]
+        s3_object_key = s3_object["key"]
+        callback(s3_object_key, bucket_name, *args, **kwargs)
