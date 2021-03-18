@@ -122,13 +122,13 @@ class Orchestrator:
         s3_object_key = self.s3_object_key
         archive_folder = self.archive_folder if self.archive_folder else "archive"
         archive_s3_key = timestamp_s3_key(s3_object_key)
-        return Path(archive_folder) / archive_s3_key
+        return (Path(archive_folder) / archive_s3_key).as_posix()
 
     @property
     def error_file_s3_key(self):
         error_folder = self.error_folder if self.error_folder else "errors"
         error_report_s3_key = timestamp_s3_key("error-report.csv")
-        return Path(error_folder) / error_report_s3_key
+        return (Path(error_folder) / error_report_s3_key).as_posix()
 
     def create_execution_object(self):
         assert self.sf_client, f"sf_client isn't set"
