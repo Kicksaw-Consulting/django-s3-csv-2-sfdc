@@ -22,7 +22,8 @@ def upload_file(
         s3_key = local_path
 
     # S3 uses posix-like paths
-    s3_key = s3_key.as_posix()
+    if type(s3_key) == Path:
+        s3_key = s3_key.as_posix()
     # cast to string to get local filesystem's path
     local_path = str(local_path)
 
