@@ -71,7 +71,5 @@ def test_orchestrator(monkeypatch):
             assert row["upsert_key"] == "ID"
             assert row["salesforce_object"] == "Contact"
 
-    assert manager.archive_file_s3_key.as_posix() == f"archive/junk-{get_iso()}.csv"
-    assert (
-        manager.error_file_s3_key.as_posix() == f"errors/error-report-{get_iso()}.csv"
-    )
+    assert manager.archive_file_s3_key == f"archive/junk-{get_iso()}.csv"
+    assert manager.error_file_s3_key == f"errors/error-report-{get_iso()}.csv"
