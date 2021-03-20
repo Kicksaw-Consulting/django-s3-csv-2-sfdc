@@ -97,12 +97,15 @@ class Orchestrator:
     def parse_sfdc_results(self, *args):
         return parse_bulk_upsert_results(*args)
 
-    def generate_error_report(self):
+    def get_error_groups(self):
         error_groups = list()
         for batch in self.batches:
             _, errors = self.parse_sfdc_results(*batch)
             error_groups.append(errors)
+        return error_groups
 
+    def generate_error_report(self):
+        error_groups = self.get_error_groups()
         error_report_path, error_count = create_error_report(error_groups)
 
         self.error_report_path = error_report_path
