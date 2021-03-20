@@ -95,7 +95,7 @@ class Orchestrator:
         self.report()
 
     def parse_sfdc_results(self, *args):
-        parse_bulk_upsert_results(*args)
+        return parse_bulk_upsert_results(*args)
 
     def generate_error_report(self):
         error_groups = list()

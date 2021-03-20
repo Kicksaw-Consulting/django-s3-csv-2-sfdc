@@ -15,4 +15,4 @@ def get_iso() -> str:
     """
     Get an iso timestamp with less precision than .iso() returns
     """
-    return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
