@@ -110,9 +110,12 @@ class Orchestrator:
             error_groups.append(errors)
         return error_groups
 
+    def create_error_report_file(self, error_groups):
+        return create_error_report(error_groups)
+
     def generate_error_report(self):
         error_groups = self.get_error_groups()
-        error_report_path, error_count = create_error_report(error_groups)
+        error_report_path, error_count = self.create_error_report_file(error_groups)
 
         self.error_report_path = error_report_path
         self.error_count = error_count
