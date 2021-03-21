@@ -34,9 +34,9 @@ def download_and_process(s3_object_key, bucket_name):
     # This function contains your own biz logic; does not come from this library
     results = serialize_and_push_to_sfdc(download_path)
 
-    error_groups = parse_bulk_upsert_results(results)
+    sucesses, errors = parse_bulk_upsert_results(results)
 
-    report_path, errors_count = create_error_report(error_groups)
+    report_path, errors_count = create_error_report([errors])
 
     upload_file(report_path, bucket_name)
 ```
