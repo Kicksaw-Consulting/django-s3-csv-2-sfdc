@@ -1,7 +1,19 @@
 # Overview
 
 A set of helper functions for CSV to Salesforce procedures, with reporting in AWS S3, based in a Django project.
-The use case is fairly specific, but the helpers should be modular so they can be cherry-picked.
+The use case is extremely specific, but the helpers should be modular so they can be cherry-picked.
+
+Typical use case:
+
+- Receive an S3 event
+- Download the S3 object
+- Serialize the file into JSON
+- Bulk upsert the JSON data to Salesforce
+- Parse the results of the upsert for errors
+- Construct a CSV error report
+- Move the triggering S3 object to an archive folder
+- Push the error report to an error folder in the same bucket
+- Push an object to Salesforce that details information about the above execution
 
 # Example
 
