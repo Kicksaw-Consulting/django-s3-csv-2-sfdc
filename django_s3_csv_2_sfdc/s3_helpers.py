@@ -70,14 +70,20 @@ def download_file(s3_object_key: str, bucket_name: str) -> Path:
     return download_path
 
 
-def timestamp_s3_key(s3_key: str, keep_folder: bool = False) -> str:
+def timestamp_s3_key(
+    s3_key: str, keep_folder: bool = False, timestamp: str = None
+) -> str:
     dir_name = os.path.dirname(s3_key)
     file_name = os.path.basename(s3_key)
     name_and_extension = os.path.splitext(file_name)
     assert len(name_and_extension) == 2
     name = name_and_extension[0]
     extension = name_and_extension[1]
-    iso = get_iso()
+
+    if not timestamp:
+        iso = get_iso()
+    else:
+        iso = timestamp
 
     timestamped_s3_key = f"{name}-{iso}{extension}"
     if keep_folder:

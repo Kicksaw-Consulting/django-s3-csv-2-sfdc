@@ -26,11 +26,11 @@ def test_orchestrator(monkeypatch):
 
     s3_key = "junk.csv"
     bucket = "a bucket"
-    manager = Orchestrator(s3_key, bucket)
+    orchestrator = Orchestrator(s3_key, bucket)
 
     data = []
     results = []
-    with open(manager.downloaded_file) as csv_file:
+    with open(orchestrator.downloaded_file) as csv_file:
         csv_reader = csv.DictReader(csv_file)
 
         for idx, row in enumerate(csv_reader):
@@ -56,11 +56,13 @@ def test_orchestrator(monkeypatch):
                 )
 
     # imagine we pushed to salesforce
-    manager.log_batch(results, data, "Contact", "ID")
+    orchestrator.log_batch(results, data, "Contact", "ID")
 
-    manager.generate_error_report()
+    timestamp = get_iso()
+    orchestrator.set_timestamp(timestamp)
+    orchestrator.generate_error_report()
 
-    with open(manager.error_report_path) as error_report:
+    with open(orchestrator.error_report_path) as error_report:
         csv_reader = csv.DictReader(error_report)
 
         for idx, row in enumerate(csv_reader):
@@ -71,5 +73,5 @@ def test_orchestrator(monkeypatch):
             assert row["upsert_key"] == "ID"
             assert row["salesforce_object"] == "Contact"
 
-    assert manager.archive_file_s3_key == f"archive/junk-{get_iso()}.csv"
-    assert manager.error_file_s3_key == f"errors/error-report-{get_iso()}.csv"
+    assert orchestrator.archive_file_s3_key == f"archive/junk-{timestamp}.csv"
+    assert orchestrator.error_file_s3_key == f"errors/error-report-{timestamp}.csv"

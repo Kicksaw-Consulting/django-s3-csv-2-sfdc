@@ -11,6 +11,7 @@ from django_s3_csv_2_sfdc.s3_helpers import (
     move_file,
 )
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
+from django_s3_csv_2_sfdc.utils import get_iso
 
 
 class SfClient(Salesforce):
@@ -73,6 +74,8 @@ class Orchestrator:
 
         self.batches = list()
 
+        self.timestamp = None
+
     def set_sf_client(self, sf_client: SfClient):
         self.sf_client = sf_client
 
@@ -123,17 +126,27 @@ class Orchestrator:
         assert self.error_report_path, f"error_report_path is not set"
         upload_file(self.error_report_path, self.bucket_name, self.error_file_s3_key)
 
+    def set_timestamp(self, timestamp: str = None):
+        self.timestamp = timestamp if timestamp else get_iso()
+
+    def get_timestamp(self):
+        if self.timestamp:
+            return self.timestamp
+        return get_iso()
+
     @property
     def archive_file_s3_key(self):
         s3_object_key = self.s3_object_key
         archive_folder = self.archive_folder if self.archive_folder else "archive"
-        archive_s3_key = timestamp_s3_key(s3_object_key)
+        archive_s3_key = timestamp_s3_key(s3_object_key, timestamp=self.get_timestamp())
         return (Path(archive_folder) / archive_s3_key).as_posix()
 
     @property
     def error_file_s3_key(self):
         error_folder = self.error_folder if self.error_folder else "errors"
-        error_report_s3_key = timestamp_s3_key("error-report.csv")
+        error_report_s3_key = timestamp_s3_key(
+            "error-report.csv", timestamp=self.get_timestamp()
+        )
         return (Path(error_folder) / error_report_s3_key).as_posix()
 
     def create_execution_object(self):
