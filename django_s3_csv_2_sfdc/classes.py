@@ -66,7 +66,7 @@ class Orchestrator:
 
         self.execution_object_name = execution_object_name
 
-        self.downloaded_file = download_file(s3_object_key, bucket_name)
+        self.download_s3_file()
         self.sf_client = sf_client
 
         self.error_report_path: str = None
@@ -75,6 +75,9 @@ class Orchestrator:
         self.batches = list()
 
         self.timestamp = None
+
+    def download_s3_file(self):
+        self.downloaded_file = download_file(self.s3_object_key, self.bucket_name)
 
     def set_sf_client(self, sf_client: SfClient):
         self.sf_client = sf_client
