@@ -13,6 +13,6 @@ def get_temp() -> Path:
 
 def get_iso() -> str:
     """
-    Get an iso timestamp with less precision than .iso() returns
+    Get an iso timestamp with less precision than .iso() returns, and no special characters
     """
-    return datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
+    return datetime.datetime.now().strftime("%Y%m%dT%H%M")
