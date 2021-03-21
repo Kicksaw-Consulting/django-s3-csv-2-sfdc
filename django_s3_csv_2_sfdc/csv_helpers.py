@@ -6,25 +6,25 @@ from typing import List, Tuple
 
 
 def create_error_report(
-    error_groups: List[list], report_path: Path = None
+    error_groups: List[list],
+    report_path: Path = None,
+    headers: List[str] = None,
 ) -> Tuple[Path, int]:
     """
     Takes in the errors from the output of parse_bulk_upsert_results and writes a report
 
-    # TODO: allow custom headers
-
     TEMP must be defined in your django settings
     """
     csv_rows = []
-    headers = [
-        "salesforce_object",
-        "code",
-        "message",
-        "upsert_key",
-        "upsert_key_value",
-        "object_json",
-    ]
-
+    if not headers:
+        headers = [
+            "salesforce_object",
+            "code",
+            "message",
+            "upsert_key",
+            "upsert_key_value",
+            "object_json",
+        ]
     csv_rows.append(headers)
 
     errors_count = 0
