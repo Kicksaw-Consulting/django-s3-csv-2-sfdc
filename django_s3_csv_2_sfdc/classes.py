@@ -130,7 +130,9 @@ class Orchestrator:
 
     def upload_error_report(self):
         assert self.error_report_path, f"error_report_path is not set"
-        upload_file(self.error_report_path, self.bucket_name, self.error_file_s3_key)
+        return upload_file(
+            self.error_report_path, self.bucket_name, self.error_file_s3_key
+        )
 
     def set_timestamp(self, timestamp: str = None):
         self.timestamp = timestamp if timestamp else get_iso()
