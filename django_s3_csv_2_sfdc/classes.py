@@ -1,7 +1,13 @@
 from pathlib import Path
 
 from django.conf import settings
+
 from simple_salesforce import Salesforce
+from simple_salesforce.bulk import (
+    SFBulkHandler as BaseSFBulkHandler,
+    SFBulkType as BaseSFBulkType,
+)
+from simple_salesforce.exceptions import SalesforceMalformedRequest
 
 from django_s3_csv_2_sfdc.csv_helpers import create_error_report
 from django_s3_csv_2_sfdc.s3_helpers import (
@@ -12,6 +18,44 @@ from django_s3_csv_2_sfdc.s3_helpers import (
 )
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
 from django_s3_csv_2_sfdc.utils import get_iso
+
+
+class SFBulkType(BaseSFBulkType):
+    def _bulk_operation(
+        self,
+        *args,
+        batch_size=10000,
+        **kwargs,
+    ):
+        try:
+            return super()._bulk_operation(
+                *args,
+                batch_size=batch_size,
+                **kwargs,
+            )
+        except SalesforceMalformedRequest as exception:
+            if "Exceeded max size limit" in str(exception):
+                new_batch_size = batch_size - 1000
+                assert new_batch_size > 0, "Batch Size Too Low!"
+                print(
+                    f"Payload too large. Retrying with a lower batch size. {batch_size} -> {new_batch_size}"
+                )
+                return super()._bulk_operation(
+                    *args,
+                    batch_size=new_batch_size,
+                    **kwargs,
+                )
+            raise exception
+
+
+class SFBulkHandler(BaseSFBulkHandler):
+    def __getattr__(self, name):
+        return SFBulkType(
+            object_name=name,
+            bulk_url=self.bulk_url,
+            headers=self.headers,
+            session=self.session,
+        )
 
 
 class SfClient(Salesforce):
@@ -25,6 +69,14 @@ class SfClient(Salesforce):
             config["domain"] = settings.SFDC_DOMAIN
 
         super().__init__(**config)
+
+    def __getattr__(self, name):
+        if name == "bulk":
+            # Deal with bulk API functions
+            return SFBulkHandler(
+                self.session_id, self.bulk_url, self.proxies, self.session
+            )
+        return super().__getattr__(name)
 
 
 class Orchestrator:
