@@ -3,10 +3,10 @@ from pathlib import Path
 
 from tempfile import gettempdir
 
-from django_s3_csv_2_sfdc.classes import Orchestrator
+from django_s3_csv_2_sfdc.orchestrator import Orchestrator
 from django_s3_csv_2_sfdc.utils import get_iso
 
-import django_s3_csv_2_sfdc.classes as classes_module
+import django_s3_csv_2_sfdc.orchestrator as orchestrator_module
 import django_s3_csv_2_sfdc.csv_helpers as csv_helpers_module
 
 
@@ -17,9 +17,9 @@ class MockSfClient:
 
 def test_orchestrator(monkeypatch):
     monkeypatch.setattr(
-        classes_module, "download_file", lambda *args: "tests/sample.csv"
+        orchestrator_module, "download_file", lambda *args: "tests/sample.csv"
     )
-    monkeypatch.setattr(classes_module, "SfClient", MockSfClient)
+    monkeypatch.setattr(orchestrator_module, "SfClient", MockSfClient)
     monkeypatch.setattr(
         csv_helpers_module, "get_temp", lambda *args: Path(gettempdir())
     )
