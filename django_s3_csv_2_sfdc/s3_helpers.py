@@ -2,6 +2,7 @@ import boto3
 import os
 
 from pathlib import Path
+from urllib.parse import unquote_plus
 
 from django_s3_csv_2_sfdc.utils import get_temp, get_iso
 
@@ -104,7 +105,7 @@ def respond_to_s3_event(event, callback, *args, **kwargs):
     for record in records:
         s3_data = record["s3"]
         bucket = s3_data["bucket"]
-        bucket_name = bucket["name"]
+        bucket_name = unquote_plus(bucket["name"])
         s3_object = s3_data["object"]
-        s3_object_key = s3_object["key"]
+        s3_object_key = unquote_plus(s3_object["key"])
         callback(s3_object_key, bucket_name, *args, **kwargs)
