@@ -17,7 +17,7 @@ Typical use case:
 
 # High-level Example
 
-Using the `Orchestrator` class, you can skip manually setting up the a lot of the above
+Using the `Orchestrator` class, you can skip manually setting up a lot of the above
 steps. This class is intended to be subclassed, and should provide plenty of options
 for overriding methods to better suit your use-case.
 
