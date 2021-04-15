@@ -16,7 +16,7 @@ def parse_bulk_upsert_results(
 
     successes = list()
     errors = list()
-    for i, result in enumerate(results):
+    for result, pushed in zip(results, data):
         if result.get("success"):
             successes.append(result)
         for error in result.get("errors"):
@@ -26,8 +26,8 @@ def parse_bulk_upsert_results(
                     "code": error.get("statusCode"),
                     "message": error.get("message"),
                     "upsert_key": upsert_key,
-                    "upsert_key_value": data[i][upsert_key],
-                    "object_json": data[i],
+                    "upsert_key_value": pushed[upsert_key],
+                    "object_json": pushed,
                 }
             )
     return successes, errors
