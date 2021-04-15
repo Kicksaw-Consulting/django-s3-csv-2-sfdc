@@ -45,7 +45,12 @@ def move_file(old_key: str, new_key: str, bucket: str, delete: bool = True):
     copy_source = {"Bucket": bucket, "Key": old_key}
     s3_client.copy(copy_source, bucket, new_key)
     if delete:
-        s3_client.delete_object(Bucket=bucket, Key=old_key)
+        delete_file(old_key, bucket)
+
+
+def delete_file(s3_key: str, bucket: str):
+    s3_client = boto3.client("s3")
+    s3_client.delete_object(Bucket=bucket, Key=s3_key)
 
 
 def download_file(s3_object_key: str, bucket_name: str) -> Path:
