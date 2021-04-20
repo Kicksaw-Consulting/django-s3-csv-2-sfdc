@@ -1,4 +1,6 @@
 import datetime
+import itertools
+from typing import Iterable
 
 from django.conf import settings
 from pathlib import Path
@@ -35,3 +37,18 @@ def get_timestamp_folder(datetime_object: datetime.datetime = None) -> Path:
     day = datetime_object.strftime("%d")
 
     return Path(year) / month / day
+
+
+def batch_collection(iterable: Iterable, size: int):
+    """
+    takes in an iterable, and divides the elements into batches,
+    return a generator for performance reasons
+
+    Stolen from https://stackoverflow.com/a/8991553/8395007
+    """
+    it = iter(iterable)
+    while True:
+        chunk = list(itertools.islice(it, size))
+        if not chunk:
+            break
+        yield chunk
