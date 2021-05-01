@@ -1,6 +1,8 @@
 import boto3
 import json
 
+from pathlib import Path
+
 from typing import Union
 
 from django_s3_csv_2_sfdc.utils import get_iso
@@ -8,7 +10,7 @@ from django_s3_csv_2_sfdc.utils import get_iso
 CACHED_DATA = Union[list, dict]
 
 
-def cache_data_in_s3(data: CACHED_DATA, bucket: str, s3_key: str = None):
+def cache_data_in_s3(data: CACHED_DATA, bucket: str, s3_key: Union[Path, str] = None):
     """
     Caches data in a json file in s3
 
@@ -20,7 +22,7 @@ def cache_data_in_s3(data: CACHED_DATA, bucket: str, s3_key: str = None):
         iso_stamp = get_iso()
         s3_key = f"data-{iso_stamp}.json"
 
-    s3.put_object(Body=json.dumps(data), Bucket=bucket, Key=s3_key)
+    s3.put_object(Body=json.dumps(data), Bucket=bucket, Key=str(s3_key))
 
     return s3_key
 
