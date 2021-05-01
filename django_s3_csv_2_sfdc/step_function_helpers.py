@@ -22,7 +22,9 @@ def cache_data_in_s3(data: CACHED_DATA, bucket: str, s3_key: Union[Path, str] = 
         iso_stamp = get_iso()
         s3_key = f"data-{iso_stamp}.json"
 
-    s3.put_object(Body=json.dumps(data), Bucket=bucket, Key=str(s3_key))
+    s3_key = str(s3_key)
+
+    s3.put_object(Body=json.dumps(data), Bucket=bucket, Key=s3_key)
 
     return s3_key
 
