@@ -2,13 +2,17 @@ import boto3
 import os
 
 from pathlib import Path
+from typing import Union
 from urllib.parse import unquote_plus
 
 from django_s3_csv_2_sfdc.utils import get_temp, get_iso
 
 
 def upload_file(
-    local_path: Path, bucket: str, s3_key: Path = None, public_read: bool = False
+    local_path: Path,
+    bucket: str,
+    s3_key: Union[Path, str] = None,
+    public_read: bool = False,
 ) -> str:
     """Upload a file to an S3 bucket
 
@@ -23,10 +27,11 @@ def upload_file(
         s3_key = local_path
 
     # S3 uses posix-like paths
-    if type(s3_key) == Path:
+    if type(s3_key) != str:
         s3_key = s3_key.as_posix()
     # cast to string to get local filesystem's path
     local_path = str(local_path)
+    s3_key = str(s3_key)
 
     s3_client = boto3.client("s3")
     if public_read:
