@@ -9,7 +9,7 @@ from django_s3_csv_2_sfdc.utils import get_temp, get_iso
 
 def upload_file(
     local_path: Path, bucket: str, s3_key: Path = None, public_read: bool = False
-):
+) -> str:
     """Upload a file to an S3 bucket
 
     :param local_path: File to upload
@@ -35,6 +35,8 @@ def upload_file(
         )
     else:
         s3_client.upload_file(local_path, bucket, s3_key)
+
+    return s3_key
 
 
 def move_file(old_key: str, new_key: str, bucket: str, delete: bool = True):
