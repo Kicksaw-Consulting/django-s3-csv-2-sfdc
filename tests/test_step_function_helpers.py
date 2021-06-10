@@ -12,7 +12,10 @@ from django_s3_csv_2_sfdc.step_function_helpers import (
 def test_cache_data_in_s3_and_pull_cached_data_from_s3():
     s3 = boto3.client("s3")
     bucket_name = "a-bucket"
-    s3.create_bucket(Bucket=bucket_name)
+    s3.create_bucket(
+        Bucket=bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "us-west-2"},
+    )
 
     data = {"greeting": "hi"}
     s3_key = cache_data_in_s3(data, bucket_name)

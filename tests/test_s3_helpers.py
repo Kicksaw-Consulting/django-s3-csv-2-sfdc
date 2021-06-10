@@ -32,7 +32,10 @@ def test_move_file(monkeypatch, delete):
     monkeypatch.setattr(s3_helpers_module, "get_temp", lambda *args: Path("tmp"))
     s3_client = boto3.client("s3")
     bucket_name = "a-bucket"
-    s3_client.create_bucket(Bucket=bucket_name)
+    s3_client.create_bucket(
+        Bucket=bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "us-west-2"},
+    )
 
     s3_key = "file.csv"
 
@@ -53,6 +56,39 @@ def test_move_file(monkeypatch, delete):
         assert failed
     else:
         assert not failed
+
+
+@mock_s3
+def test_move_file_to_another_bucket(monkeypatch):
+    monkeypatch.setattr(s3_helpers_module, "get_temp", lambda *args: Path("tmp"))
+    s3_client = boto3.client("s3")
+    bucket_name = "a-bucket"
+    other_bucket_name = "a-better-bucket"
+    s3_client.create_bucket(
+        Bucket=bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "us-west-2"},
+    )
+    s3_client.create_bucket(
+        Bucket=other_bucket_name,
+        CreateBucketConfiguration={"LocationConstraint": "us-west-2"},
+    )
+
+    s3_key = "file.csv"
+
+    upload_file(Path("tests") / "sample.csv", bucket_name, s3_key)
+
+    new_key = "better-file.csv"
+    move_file(s3_key, new_key, bucket_name, new_bucket=other_bucket_name, delete=True)
+
+    download_file(new_key, other_bucket_name)
+
+    failed = False
+    try:
+        download_file(s3_key, bucket_name)
+    except ClientError:
+        failed = True
+
+    assert failed
 
 
 @pytest.mark.parametrize(
