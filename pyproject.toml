@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "django-s3-csv-2-sfdc"
-version = "0.3.8"
+version = "0.3.9"
 description = "A set of helper functions for CSV to Salesforce procedures, with reporting in AWS S3, based in a Django project"
 readme = "README.md"
 repository = "https://github.com/brno32/django-s3-csv-2-sfdc"
