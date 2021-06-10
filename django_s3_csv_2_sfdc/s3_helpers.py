@@ -44,13 +44,16 @@ def upload_file(
     return s3_key
 
 
-def move_file(old_key: str, new_key: str, bucket: str, delete: bool = True):
+def move_file(
+    old_key: str, new_key: str, bucket: str, new_bucket: str = None, delete: bool = True
+):
     """
     Move a file within an S3 bucket by copying to a different path and deleting the original
     """
     s3_client = boto3.client("s3")
     copy_source = {"Bucket": bucket, "Key": old_key}
-    s3_client.copy(copy_source, bucket, new_key)
+    destination_bucket = new_bucket if new_bucket else bucket
+    s3_client.copy(copy_source, destination_bucket, new_key)
     if delete:
         delete_file(old_key, bucket)
 
