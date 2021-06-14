@@ -17,6 +17,7 @@ from django_s3_csv_2_sfdc.s3_helpers import (
     move_file,
     upload_file,
     download_file,
+    get_filename_from_s3_key,
 )
 
 
@@ -132,3 +133,16 @@ def test_respond_to_s3_event(s3_key, expected_s3_key, bucket, expected_bucket):
         ]
     }
     respond_to_s3_event(event, process)
+
+
+@pytest.mark.parametrize(
+    "s3_key,expected",
+    [
+        ("origin/a_file.csv", "a_file.csv"),
+        ("another_file.csv", "another_file.csv"),
+        ("a/b/c/file.csv", "file.csv"),
+    ],
+)
+def test_get_filename_from_s3_key(s3_key, expected):
+    filename = get_filename_from_s3_key(s3_key)
+    assert filename == expected

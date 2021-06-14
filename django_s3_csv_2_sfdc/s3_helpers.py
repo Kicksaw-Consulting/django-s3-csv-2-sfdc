@@ -125,3 +125,7 @@ def respond_to_s3_event(event, callback, *args, **kwargs):
         s3_object = s3_data["object"]
         s3_object_key = unquote_plus(s3_object["key"])
         callback(s3_object_key, bucket_name, *args, **kwargs)
+
+
+def get_filename_from_s3_key(s3_key: str):
+    return os.path.basename(s3_key)
