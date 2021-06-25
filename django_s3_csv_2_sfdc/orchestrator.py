@@ -9,7 +9,7 @@ from django_s3_csv_2_sfdc.s3_helpers import (
 )
 from django_s3_csv_2_sfdc.salesforce_client import SfClient
 from django_s3_csv_2_sfdc.sfdc_helpers import parse_bulk_upsert_results
-from django_s3_csv_2_sfdc.utils import get_iso
+from django_s3_csv_2_sfdc.utils import get_iso, get_temp
 
 
 class Orchestrator:
@@ -40,6 +40,7 @@ class Orchestrator:
         bucket_name,
         sf_client: SfClient = None,
         archive_folder: str = None,
+        error_report_file_name: str = None,
         error_folder: str = None,
         execution_object_name: str = None,
     ) -> None:
@@ -53,13 +54,11 @@ class Orchestrator:
 
         self.download_s3_file()
         self.sf_client = sf_client
-
-        self.error_report_path: str = None
-        self.error_count: int = None
-
-        self.batches = list()
-
         self.timestamp = None
+        self.set_timestamp()
+        self.error_report_file_name: str = f"error-report-{self.get_timestamp()}.csv"
+        self.error_report_path = Path(get_temp()) / self.error_report_file_name
+        self.error_count: int = 0
 
     def download_s3_file(self):
         self.downloaded_file = download_file(self.s3_object_key, self.bucket_name)
@@ -79,31 +78,19 @@ class Orchestrator:
             salesforce_object: The name of the object you upserted to
             upsert_key: The upsert key you used
         """
-        self.batches.append((results, list(data), salesforce_object, upsert_key))
+        batch = (results, list(data), salesforce_object, upsert_key)
+        _, errors = self.parse_sfdc_results(*batch)
+        error_count = self.create_error_report_file(errors)
+        self.error_count += error_count
 
     def automagically_finish_up(self):
-        self.generate_error_report()
         self.report()
 
     def parse_sfdc_results(self, *args):
         return parse_bulk_upsert_results(*args)
 
-    def get_error_groups(self):
-        error_groups = list()
-        for batch in self.batches:
-            _, errors = self.parse_sfdc_results(*batch)
-            error_groups.append(errors)
-        return error_groups
-
-    def create_error_report_file(self, error_groups):
-        return create_error_report(error_groups)
-
-    def generate_error_report(self):
-        error_groups = self.get_error_groups()
-        error_report_path, error_count = self.create_error_report_file(error_groups)
-
-        self.error_report_path = error_report_path
-        self.error_count = error_count
+    def create_error_report_file(self, errors):
+        return create_error_report(errors, self.error_report_path)
 
     def report(self):
         self.archive_file()
@@ -123,9 +110,7 @@ class Orchestrator:
         self.timestamp = timestamp if timestamp else get_iso()
 
     def get_timestamp(self):
-        if self.timestamp:
-            return self.timestamp
-        return get_iso()
+        return self.timestamp
 
     @property
     def archive_file_s3_key(self):

@@ -1,15 +1,16 @@
 import csv
-from django_s3_csv_2_sfdc.utils import get_temp
-
+import os
 from pathlib import Path
 from typing import List, Tuple
 
+from django_s3_csv_2_sfdc.utils import get_temp
+
 
 def create_error_report(
-    error_groups: List[list],
-    report_path: Path = None,
+    errors: list,
+    report_path: Path,
     headers: List[str] = None,
-) -> Tuple[Path, int]:
+) -> int:
     """
     Takes in the errors from the output of parse_bulk_upsert_results and writes a report
 
@@ -25,22 +26,20 @@ def create_error_report(
             "upsert_key_value",
             "object_json",
         ]
-    csv_rows.append(headers)
+
+    if not os.path.isfile(report_path):
+        csv_rows.append(headers)
 
     errors_count = 0
-    for group in error_groups:
-        for error in group:
-            errors_count += 1
-            csv_rows.append([error[header] for header in headers])
+    for error in errors:
+        errors_count += 1
+        csv_rows.append([error[header] for header in headers])
 
-    if not report_path:
-        report_path = get_temp() / "error_report.csv"
-
-    with open(report_path, mode="w", newline="") as file:
+    with open(report_path, mode="a", newline="") as file:
         writer = csv.writer(
             file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
         )
         for row in csv_rows:
             writer.writerow(row)
 
-    return report_path, errors_count
+    return errors_count

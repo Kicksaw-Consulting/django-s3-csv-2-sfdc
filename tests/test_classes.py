@@ -23,6 +23,9 @@ def test_orchestrator(monkeypatch):
     monkeypatch.setattr(
         csv_helpers_module, "get_temp", lambda *args: Path(gettempdir())
     )
+    monkeypatch.setattr(
+        orchestrator_module, "get_temp", lambda *args: Path(gettempdir())
+    )
 
     s3_key = "junk.csv"
     bucket = "a bucket"
@@ -57,21 +60,51 @@ def test_orchestrator(monkeypatch):
 
     # imagine we pushed to salesforce
     orchestrator.log_batch(results, data, "Contact", "ID")
+    results_2 = [
+        {
+            "success": True,
+            "created": True,
+            "Id": 1,
+            "errors": [{"statusCode": "WEIRD_FAIL_1", "message": "it is broken 1"}],
+        },
+        {
+            "success": True,
+            "created": True,
+            "Id": 2,
+            "errors": [{"statusCode": "WEIRD_FAIL_2", "message": "it is broken 2"}],
+        },
+        {
+            "success": True,
+            "created": True,
+            "Id": 3,
+            "errors": [{"statusCode": "WEIRD_FAIL_3", "message": "it is broken 3"}],
+        },
+    ]
+    orchestrator.log_batch(
+        results_2,
+        data,
+        "Contact",
+        "ID",
+    )
 
-    timestamp = get_iso()
-    orchestrator.set_timestamp(timestamp)
-    orchestrator.generate_error_report()
+    timestamp = orchestrator.get_timestamp()
 
     with open(orchestrator.error_report_path) as error_report:
         csv_reader = csv.DictReader(error_report)
 
         for idx, row in enumerate(csv_reader):
-            # assert not row
-            assert row["code"] == "DIDNT_WORK"
-            assert row["message"] == "it broke"
-            assert row["upsert_key_value"] == "1"
-            assert row["upsert_key"] == "ID"
-            assert row["salesforce_object"] == "Contact"
+            if idx == 0:
+                assert row["code"] == "DIDNT_WORK"
+                assert row["message"] == "it broke"
+                assert row["upsert_key_value"] == "1"
+                assert row["upsert_key"] == "ID"
+                assert row["salesforce_object"] == "Contact"
+            elif idx == 1:
+                assert row["code"] == "WEIRD_FAIL_1"
+                assert row["message"] == "it is broken 1"
+                assert row["upsert_key_value"] == "1"
+                assert row["upsert_key"] == "ID"
+                assert row["salesforce_object"] == "Contact"
 
     assert orchestrator.archive_file_s3_key == f"archive/junk-{timestamp}.csv"
     assert orchestrator.error_file_s3_key == f"errors/error-report-{timestamp}.csv"
