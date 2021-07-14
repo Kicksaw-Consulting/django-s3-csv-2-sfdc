@@ -56,9 +56,17 @@ class Orchestrator:
         self.sf_client = sf_client
         self.timestamp = None
         self.set_timestamp()
-        self.error_report_file_name: str = f"error-report-{self.get_timestamp()}.csv"
-        self.error_report_path = Path(get_temp()) / self.error_report_file_name
+        self.set_error_report_name(error_report_file_name)
         self.error_count: int = 0
+
+    def set_error_report_name(self, error_report_file_name=None):
+        if error_report_file_name:
+            self.error_report_file_name = error_report_file_name
+        else:
+            self.error_report_file_name: str = (
+                f"error-report-{self.get_timestamp()}.csv"
+            )
+        self.error_report_path = Path(get_temp()) / self.error_report_file_name
 
     def download_s3_file(self):
         self.downloaded_file = download_file(self.s3_object_key, self.bucket_name)
@@ -122,10 +130,7 @@ class Orchestrator:
     @property
     def error_file_s3_key(self):
         error_folder = self.error_folder if self.error_folder else "errors"
-        error_report_s3_key = timestamp_s3_key(
-            "error-report.csv", timestamp=self.get_timestamp()
-        )
-        return (Path(error_folder) / error_report_s3_key).as_posix()
+        return (Path(error_folder) / self.error_report_file_name).as_posix()
 
     def create_execution_object(self):
         assert self.sf_client, f"sf_client isn't set"
