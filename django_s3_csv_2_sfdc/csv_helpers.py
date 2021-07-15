@@ -35,6 +35,8 @@ def create_error_report(
         errors_count += 1
         csv_rows.append([error[header] for header in headers])
 
+    Path(report_path.parent).mkdir(parents=True, exist_ok=True)
+
     with open(report_path, mode="a", newline="") as file:
         writer = csv.writer(
             file, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL
