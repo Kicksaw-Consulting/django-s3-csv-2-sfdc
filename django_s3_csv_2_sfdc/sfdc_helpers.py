@@ -26,7 +26,7 @@ def parse_bulk_upsert_results(
                     "code": error.get("statusCode"),
                     "message": error.get("message"),
                     "upsert_key": upsert_key,
-                    "upsert_key_value": pushed[upsert_key],
+                    "upsert_key_value": pushed.get(upsert_key),
                     "object_json": pushed,
                 }
             )
